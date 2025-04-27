@@ -12,6 +12,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.NoSuchElementException;
+import java.util.Optional;
 
 @Service
 public class ViewHistoryService {
@@ -33,7 +34,16 @@ public class ViewHistoryService {
         Product product = productRepository.findById(requestDto.getProductId())
                 .orElseThrow(() -> new NoSuchElementException("해당 상품을 찾을 수 없습니다. ID: " + requestDto.getProductId()));
 
-        ViewHistory viewHistory = new ViewHistory(user, product, LocalDateTime.now());
-        viewHistoryRepository.save(viewHistory);
+        Optional<ViewHistory> existingHistory = viewHistoryRepository.findByUserAndProduct(user, product);
+
+        if (existingHistory.isPresent()) {
+            ViewHistory history = existingHistory.get();
+            history.incrementClickCount();
+            history.setViewedAt(LocalDateTime.now());
+            viewHistoryRepository.save(history);
+        } else {
+            ViewHistory viewHistory = new ViewHistory(user, product, LocalDateTime.now());
+            viewHistoryRepository.save(viewHistory);
+        }
     }
 }

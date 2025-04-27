@@ -24,12 +24,19 @@ public class ViewHistory {
 
     private LocalDateTime viewedAt;
 
+    private int clickCount;
+
     public ViewHistory() {
+        this.clickCount = 0;
     }
 
     public ViewHistory(User user, Product product, LocalDateTime viewedAt) {
         this.user = user;
         this.product = product;
         this.viewedAt = viewedAt;
+        this.clickCount = 1;
+    }
+    public void incrementClickCount() {
+        this.clickCount++;
     }
 }
