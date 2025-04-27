@@ -56,4 +56,68 @@ public class ItemBasedRecommendationService {
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
+
+    public Map<String, Double> evaluateItemBasedRecommendations(int topN) {
+        Map<Long, Map<Long, Double>> itemSimilarities = itemSimilarityService.calculateItemSimilarities();
+        List<User> allUsers = userRepository.findAll();
+        int hitCount = 0;
+        double mrrSum = 0;
+        Set<Long> allRecommendedProducts = new HashSet<>();
+        int totalRecommendations = 0;
+
+        for (User user : allUsers) {
+            List<ViewHistory> userHistory = viewHistoryRepository.findByUserOrderByViewedAtDesc(user);
+            if (userHistory.size() < 2) continue;
+
+            Product lastViewedProduct = userHistory.get(0).getProduct();
+            List<ViewHistory> trainingHistory = userHistory.subList(1, userHistory.size());
+            Set<Long> trainingViewedProductIds = trainingHistory.stream().map(vh -> vh.getProduct().getId()).collect(Collectors.toSet());
+
+            Map<Long, Double> recommendationScores = new HashMap<>();
+            for (ViewHistory history : trainingHistory) {
+                Long viewedProductId = history.getProduct().getId();
+                int clickCount = history.getClickCount();
+                Map<Long, Double> similarItems = itemSimilarities.getOrDefault(viewedProductId, new HashMap<>());
+
+                for (Map.Entry<Long, Double> similarItemEntry : similarItems.entrySet()) {
+                    Long similarItemId = similarItemEntry.getKey();
+                    double similarityScore = similarItemEntry.getValue();
+
+                    if (!trainingViewedProductIds.contains(similarItemId)) {
+                        recommendationScores.put(similarItemId, recommendationScores.getOrDefault(similarItemId, 0.0) + similarityScore * clickCount);
+                    }
+                }
+            }
+
+            List<Long> recommendations = recommendationScores.entrySet().stream()
+                    .sorted(Map.Entry.<Long, Double>comparingByValue().reversed())
+                    .limit(topN)
+                    .map(Map.Entry::getKey)
+                    .collect(Collectors.toList());
+
+            totalRecommendations += recommendations.size();
+            allRecommendedProducts.addAll(recommendations);
+
+            if (recommendations.contains(lastViewedProduct.getId())) {
+                hitCount++;
+                for (int i = 0; i < recommendations.size(); i++) {
+                    if (recommendations.get(i).equals(lastViewedProduct.getId())) {
+                        mrrSum += 1.0 / (i + 1);
+                        break;
+                    }
+                }
+            }
+        }
+
+        double hitRate = (double) hitCount / (allUsers.size() > 0 ? allUsers.size() : 1);
+        double mrr = mrrSum / (allUsers.size() > 0 ? allUsers.size() : 1);
+        double diversity = totalRecommendations > 0 ? (double) allRecommendedProducts.size() / totalRecommendations : 0;
+
+        Map<String, Double> evaluationResults = new HashMap<>();
+        evaluationResults.put("hitRate", hitRate);
+        evaluationResults.put("mrr", mrr);
+        evaluationResults.put("diversity", diversity);
+
+        return evaluationResults;
+    }
 }

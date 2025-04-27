@@ -19,7 +19,7 @@ public class RecommendationController {
 
     private final RecommendationService recommendationService;
     private final UserBasedRecommendationService userBasedRecommendationService;
-    private final ItemBasedRecommendationService itemBasedRecommendationService; // 추가
+    private final ItemBasedRecommendationService itemBasedRecommendationService;
 
     public RecommendationController(RecommendationService recommendationService, UserBasedRecommendationService userBasedRecommendationService, ItemBasedRecommendationService itemBasedRecommendationService) {
         this.recommendationService = recommendationService;
@@ -49,5 +49,11 @@ public class RecommendationController {
     public ResponseEntity<List<Product>> getRecommendationsByItem(@PathVariable Long userId) {
         List<Product> recommendations = itemBasedRecommendationService.recommendProductsByItem(userId, 5);
         return ResponseEntity.ok(recommendations);
+    }
+
+    @GetMapping("/item-based/evaluate")
+    public ResponseEntity<Map<String, Double>> evaluateItemBasedRecommendations() {
+        Map<String, Double> evaluationResults = itemBasedRecommendationService.evaluateItemBasedRecommendations(5);
+        return ResponseEntity.ok(evaluationResults);
     }
 }
