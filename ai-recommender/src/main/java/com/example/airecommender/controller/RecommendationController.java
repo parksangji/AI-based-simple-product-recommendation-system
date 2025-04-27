@@ -1,6 +1,7 @@
 package com.example.airecommender.controller;
 
 import com.example.airecommender.domain.Product;
+import com.example.airecommender.service.ItemBasedRecommendationService;
 import com.example.airecommender.service.RecommendationService;
 import com.example.airecommender.service.UserBasedRecommendationService;
 import org.springframework.http.ResponseEntity;
@@ -18,10 +19,12 @@ public class RecommendationController {
 
     private final RecommendationService recommendationService;
     private final UserBasedRecommendationService userBasedRecommendationService;
+    private final ItemBasedRecommendationService itemBasedRecommendationService; // 추가
 
-    public RecommendationController(RecommendationService recommendationService, UserBasedRecommendationService userBasedRecommendationService) {
+    public RecommendationController(RecommendationService recommendationService, UserBasedRecommendationService userBasedRecommendationService, ItemBasedRecommendationService itemBasedRecommendationService) {
         this.recommendationService = recommendationService;
         this.userBasedRecommendationService = userBasedRecommendationService;
+        this.itemBasedRecommendationService = itemBasedRecommendationService;
     }
 
     @GetMapping("/{userId}")
@@ -40,5 +43,11 @@ public class RecommendationController {
     public ResponseEntity<Map<String, Double>> evaluateUserBasedRecommendations() {
         Map<String, Double> evaluationResults = userBasedRecommendationService.evaluateRecommendations(5);
         return ResponseEntity.ok(evaluationResults);
+    }
+
+    @GetMapping("/item-based/{userId}")
+    public ResponseEntity<List<Product>> getRecommendationsByItem(@PathVariable Long userId) {
+        List<Product> recommendations = itemBasedRecommendationService.recommendProductsByItem(userId, 5);
+        return ResponseEntity.ok(recommendations);
     }
 }
