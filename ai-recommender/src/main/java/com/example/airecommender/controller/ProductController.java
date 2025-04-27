@@ -50,10 +50,4 @@ public class ProductController {
         List<Product> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
     }
-
-    @GetMapping("/recommendations/{userId}")
-    public ResponseEntity<List<Product>> getRecommendations(@PathVariable Long userId) {
-        List<Product> recommendations = recommendationService.recommendProductsAndRecord(userId);
-        return ResponseEntity.ok(recommendations);
-    }
 }
