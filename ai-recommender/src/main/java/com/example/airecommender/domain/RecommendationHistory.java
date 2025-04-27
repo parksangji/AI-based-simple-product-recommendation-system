@@ -2,11 +2,14 @@ package com.example.airecommender.domain;
 
 import jakarta.persistence.*;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
 @Entity
-@Data
+@Getter
+@Setter
 public class RecommendationHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -21,4 +24,13 @@ public class RecommendationHistory {
     private Product product;
 
     private LocalDateTime recommendedAt;
+
+    public RecommendationHistory() {
+    }
+
+    public RecommendationHistory(User user, Product product, LocalDateTime recommendedAt) {
+        this.user = user;
+        this.product = product;
+        this.recommendedAt = recommendedAt;
+    }
 }

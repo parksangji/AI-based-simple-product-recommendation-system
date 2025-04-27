@@ -53,7 +53,7 @@ public class ProductController {
 
     @GetMapping("/recommendations/{userId}")
     public ResponseEntity<List<Product>> getRecommendations(@PathVariable Long userId) {
-        List<Product> recommendations = recommendationService.recommendProducts(userId);
+        List<Product> recommendations = recommendationService.recommendProductsAndRecord(userId);
         return ResponseEntity.ok(recommendations);
     }
 }
