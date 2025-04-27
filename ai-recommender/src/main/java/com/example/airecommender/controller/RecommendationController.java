@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/recommendations")
@@ -33,5 +34,11 @@ public class RecommendationController {
     public ResponseEntity<List<Product>> getRecommendationsByUser(@PathVariable Long userId) {
         List<Product> recommendations = userBasedRecommendationService.recommendProductsByUser(userId, 5);
         return ResponseEntity.ok(recommendations);
+    }
+
+    @GetMapping("/user-based/evaluate")
+    public ResponseEntity<Map<String, Double>> evaluateUserBasedRecommendations() {
+        Map<String, Double> evaluationResults = userBasedRecommendationService.evaluateRecommendations(5);
+        return ResponseEntity.ok(evaluationResults);
     }
 }
