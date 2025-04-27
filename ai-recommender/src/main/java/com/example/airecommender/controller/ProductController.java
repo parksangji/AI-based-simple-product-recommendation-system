@@ -3,6 +3,7 @@ package com.example.airecommender.controller;
 import com.example.airecommender.domain.Product;
 import com.example.airecommender.dto.ProductRequestDto;
 import com.example.airecommender.service.ProductService;
+import com.example.airecommender.service.RecommendationService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -13,9 +14,11 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductService productService;
+    private final RecommendationService recommendationService;
 
-    public ProductController(ProductService productService) {
+    public ProductController(ProductService productService, RecommendationService recommendationService) {
         this.productService = productService;
+        this.recommendationService = recommendationService;
     }
 
     @PostMapping
@@ -46,5 +49,11 @@ public class ProductController {
     public ResponseEntity<List<Product>> getAllProducts() {
         List<Product> products = productService.getAllProducts();
         return ResponseEntity.ok(products);
+    }
+
+    @GetMapping("/recommendations/{userId}")
+    public ResponseEntity<List<Product>> getRecommendations(@PathVariable Long userId) {
+        List<Product> recommendations = recommendationService.recommendProducts(userId);
+        return ResponseEntity.ok(recommendations);
     }
 }
