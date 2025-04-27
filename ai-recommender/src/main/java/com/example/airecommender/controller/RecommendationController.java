@@ -2,6 +2,7 @@ package com.example.airecommender.controller;
 
 import com.example.airecommender.domain.Product;
 import com.example.airecommender.service.RecommendationService;
+import com.example.airecommender.service.UserBasedRecommendationService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -15,14 +16,22 @@ import java.util.List;
 public class RecommendationController {
 
     private final RecommendationService recommendationService;
+    private final UserBasedRecommendationService userBasedRecommendationService;
 
-    public RecommendationController(RecommendationService recommendationService) {
+    public RecommendationController(RecommendationService recommendationService, UserBasedRecommendationService userBasedRecommendationService) {
         this.recommendationService = recommendationService;
+        this.userBasedRecommendationService = userBasedRecommendationService;
     }
 
     @GetMapping("/{userId}")
     public ResponseEntity<List<Product>> getRecommendations(@PathVariable Long userId) {
         List<Product> recommendations = recommendationService.recommendProductsAndRecord(userId);
+        return ResponseEntity.ok(recommendations);
+    }
+
+    @GetMapping("/user-based/{userId}")
+    public ResponseEntity<List<Product>> getRecommendationsByUser(@PathVariable Long userId) {
+        List<Product> recommendations = userBasedRecommendationService.recommendProductsByUser(userId, 5);
         return ResponseEntity.ok(recommendations);
     }
 }
