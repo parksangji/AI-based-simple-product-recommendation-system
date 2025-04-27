@@ -38,7 +38,6 @@ public class RecommendationService {
         return recommendations;
     }
 
-    // 규칙 기반 추천 로직: 최근 조회 상품과 같은 카테고리의 다른 상품 추천
     private List<Product> recommendProductsByViewHistory(User user) {
         List<ViewHistory> recentViews = viewHistoryRepository.findByUserOrderByViewedAtDesc(user);
 
