@@ -14,11 +14,9 @@ import java.util.List;
 @RequestMapping("/api/products")
 public class ProductController {
     private final ProductService productService;
-    private final RecommendationService recommendationService;
 
-    public ProductController(ProductService productService, RecommendationService recommendationService) {
+    public ProductController(ProductService productService) {
         this.productService = productService;
-        this.recommendationService = recommendationService;
     }
 
     @PostMapping

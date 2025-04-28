@@ -1,6 +1,7 @@
 package com.example.airecommender.controller;
 
 import com.example.airecommender.domain.Product;
+import com.example.airecommender.service.HybridRecommendationService;
 import com.example.airecommender.service.ItemBasedRecommendationService;
 import com.example.airecommender.service.RecommendationService;
 import com.example.airecommender.service.UserBasedRecommendationService;
@@ -20,11 +21,13 @@ public class RecommendationController {
     private final RecommendationService recommendationService;
     private final UserBasedRecommendationService userBasedRecommendationService;
     private final ItemBasedRecommendationService itemBasedRecommendationService;
+    private final HybridRecommendationService hybridRecommendationService; // 추가
 
-    public RecommendationController(RecommendationService recommendationService, UserBasedRecommendationService userBasedRecommendationService, ItemBasedRecommendationService itemBasedRecommendationService) {
+    public RecommendationController(RecommendationService recommendationService, UserBasedRecommendationService userBasedRecommendationService, ItemBasedRecommendationService itemBasedRecommendationService, HybridRecommendationService hybridRecommendationService) {
         this.recommendationService = recommendationService;
         this.userBasedRecommendationService = userBasedRecommendationService;
         this.itemBasedRecommendationService = itemBasedRecommendationService;
+        this.hybridRecommendationService = hybridRecommendationService;
     }
 
     @GetMapping("/{userId}")
@@ -55,5 +58,11 @@ public class RecommendationController {
     public ResponseEntity<Map<String, Double>> evaluateItemBasedRecommendations() {
         Map<String, Double> evaluationResults = itemBasedRecommendationService.evaluateItemBasedRecommendations(5);
         return ResponseEntity.ok(evaluationResults);
+    }
+
+    @GetMapping("/hybrid/{userId}")
+    public ResponseEntity<List<Product>> getHybridRecommendations(@PathVariable Long userId) {
+        List<Product> recommendations = hybridRecommendationService.recommendHybrid(userId, 5);
+        return ResponseEntity.ok(recommendations);
     }
 }
